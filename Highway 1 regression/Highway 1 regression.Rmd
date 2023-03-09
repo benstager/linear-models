@@ -1,0 +1,56 @@
+---
+title: "test"
+output: html_document
+date: "2023-03-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Question 2: Using highway1 and calculating various regressions
+
+# Calculating first set of residuals
+load(file = 'Highway1.rda')
+
+Y = as.matrix(Highway1[,'rate'])
+
+X2_k = as.matrix(cbind(1,Highway1[,'itg'],Highway1[,'lwid'],Highway1[,'len'],Highway1[,'adt'],Highway1[,'trks'],Highway1[,'sigs1'],Highway1[,'slim'],Highway1[,'shld'],Highway1[,'lane']))
+
+
+beta_2_k = solve(t(X2_k) %*% X2_k) %*% t(X2_k) %*% Y
+
+E_y2_k = Y - X2_k %*% beta_2_k
+
+
+# Calculating next set of residuals
+X1 = as.matrix(Highway1[,'acpt'])
+
+beta_1_k = solve(t(X2_k) %*% X2_k) %*% t(X2_k) %*% X1
+
+E_1_k = X1 - X2_k %*% beta_1_k
+
+
+# Calculating final set of residuals
+
+E_1_k = as.matrix(cbind(1,E_1_k))
+
+beta_e1k = solve(t(E_1_k) %*% E_1_k) %*% t(E_1_k) %*% E_y2_k
+
+print(beta_e1k)
+
+
+# Hypothesis testing for beta_0 (t stat and p value)
+
+RSS = sum((E_y2_k-E_1_k %*% beta_e1k)^2)
+
+MSE = RSS/(length(X1)-length(beta_e1k))
+
+sigma_matrix = as.numeric(MSE) * solve(crossprod(E_1_k))
+
+t_beta0 = beta_e1k[1]/sqrt(sigma_matrix[1,1])
+
+p_value = pt(t_beta0,length(X1)-length(beta_e1k), lower.tail = FALSE) * 2
+
+
