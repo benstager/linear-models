@@ -1,0 +1,46 @@
+---
+title: "exercise3"
+output: html_document
+date: "2023-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 3 - Using dummy variable regression to write a model
+
+# Setting up dummy variables 7 species -> 6 dummies. Choose 'bream' as base categorical level as it has highest count
+
+roach = ifelse(data['Species'] == 'Roach',1,0)
+whitefish = ifelse(data['Species'] == 'Whitefish',1,0)
+parkki = ifelse(data['Species'] == 'Parkki',1,0)
+perch = ifelse(data['Species'] == 'Perch',1,0)
+pike = ifelse(data['Species'] == 'Pike',1,0)
+smelt = ifelse(data['Species'] == 'Smelt',1,0)
+
+Y = as.matrix(data[,'Weight'])
+X = as.matrix(cbind(1,data[,'Length1'],data[,'Length2'],data[,'Length3'],data[,'Height'],data[,'Width'],roach,whitefish,parkki,perch,pike,smelt))
+
+beta_ls = solve((t(X) %*% X)) %*% t(X) %*% Y
+
+lmod = lm(Weight ~ Species + Length1 + Length2 + Length3 + Height + Width, data = data)
+
+
+# Hypothesis testing the 6 dummy variables 
+
+Y_hat = X %*% beta_ls
+RSS = sum((Y-Y_hat)^2)
+MSE = RSS/(length(X[,1])-length(beta_ls))
+
+sigma = as.numeric(MSE) * solve(crossprod(X))
+
+beta_ls_SE = as.matrix(sqrt(diag(sigma)))
+
+t_stats = beta_ls/beta_ls_SE
+
+p_values = pt(t_stats, length(X[,1]) - length(beta_ls), lower.tail = TRUE) * 2
+summary(lmod)
+
+
+

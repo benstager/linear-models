@@ -1,0 +1,27 @@
+---
+title: "Exercise3"
+output: html_document
+date: "2023-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 3: Fish data
+
+# 2) Use weight as response, and omit species, write linear model and find R^2
+
+
+data = read.csv("Fish.csv", header=TRUE, stringsAsFactors=FALSE)
+
+Y = data[,'Weight']
+X_noSpecies = as.matrix(cbind(1,data['Length1'],data['Length2'],data['Length3'],data['Height'],data['Width']))
+
+beta_ls = solve(t(X_noSpecies) %*% X_noSpecies) %*% t(X_noSpecies) %*% Y
+
+lmod = lm(Weight ~ Length1 + Length2 + Length3 + Height + Width, data = data)
+
+
+
+
