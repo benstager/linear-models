@@ -1,0 +1,57 @@
+---
+title: "exercise3"
+output: html_document
+date: "2023-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading gavote data
+
+library(tidyverse)
+
+library(faraway)
+
+gavote %>% head(10)
+
+gavote['usage'] = gavote['rural']
+pergore = as.matrix(gavote['gore']/gavote['votes'])
+perbush = as.matrix(gavote['bush']/gavote['votes'])
+perAA = as.matrix(gavote['perAA'])
+X = cbind(1,pergore,perAA)
+usage = gavote['usage']
+equip = gavote['equip']
+
+# Linear model
+
+lmod <- lm(undercount ~ pergore + perAA, gavote)
+summary(lmod)
+
+# A model with qualitative and quantative predictors
+
+cpergore = pergore - mean(pergore)
+cperAA = perAA - mean(perAA)
+
+lmodi = lm(undercount ~ cperAA + usage*cpergore + equip, gavote)
+
+# Constructing design matrix
+
+X = as.matrix(model.matrix(lmodi))
+Y = as.matrix(undercount)
+
+beta_ls = solve((t(X) %*% X)) %*% t(X) %*% Y
+
+# Using ANOVA to compare p = 3, q = 9 regressions
+
+anova(lmod,lmodi)
+
+# Confidence intervals using confint
+
+confint(lmodi)
+
+# Plotting fitted values vs residual at y_i, other plots
+
+plot(lmodi)
+
