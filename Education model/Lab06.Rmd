@@ -1,0 +1,25 @@
+---
+title: "lab6"
+output: html_document
+date: "2023-04-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load data
+
+data = read.table('SLID-Ontario.txt', header = TRUE)
+
+# Write linear model
+
+lmod = lm(compositeHourlyWages ~ age + sex + yearsEducation, data = data)
+summary(lmod)
+
+# Logging wages
+
+lmod.2 = lm(log2(compositeHourlyWages) ~ age + sex + yearsEducation, data = data)
+summary(lmod.2)
+
+
