@@ -1,0 +1,40 @@
+---
+title: "lab07"
+output: html_document
+date: "2023-04-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading fish data
+data = read.csv("Fish.csv")
+data = data[data[,'Weight'] > 0, ]
+
+# Creating different models for fish data (simple models)
+lmod1 = lm(Weight ~ Length1 + Length2 + Length3 + Height + Width, data = data)
+lmod2 = lm(Weight ~ Species + Length1 + Length2 + Length3 + Height + Width, data = data)
+
+# Fitting nonlinear models
+lmod3 = lm(Weight ~ Species * (Length1 + Length2 + Length3 + Height + Width), data = data)
+lmod4 = lm(Weight ~ Species * (Length1 + Length2 + Length3 + Height + Width)^2, data = data)
+lmod5 = lm(Weight ~ Species * (Length1 + Length2 + Length3 + Height + Width)^3, data = data)
+
+# Fitting using volumetric method
+lmod6 = lm(Weight ~ Species * Length1 * Height * Width, data = data)
+lmod7 = lm(log(Weight) ~ Species + Length1 + Length2 + Length3 + Height + Width, data = data)
+lmod8 = lm(log(Weight) ~ Species * (Length1 + Length2 + Length3 + Height + Width), data = data)
+
+# Extracting AIC score
+(lmod8.AIC = extractAIC(lmod8))
+
+# Using p value backwards selection
+lmod2 = lm(Weight ~ Species + Length1 + Length2 + Length3 + Height + Width, data = data)
+summary(lmod2)
+
+# Using AIC as threshold selector
+(smallm = step(lmod3, trace = TRUE, direction = "backward"))
+
+# Determining collinearity between lengths
+length_rank = lm(Length2 ~ Length1 + Length3, data = data)
